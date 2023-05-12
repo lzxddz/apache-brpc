@@ -30,6 +30,8 @@
 #include "butil/resource_pool.h"                    // ResourceId
 #include "bthread/parking_lot.h"
 
+#include "moodycamelqueue.h"
+
 namespace bthread {
 
 // For exiting a bthread.
@@ -182,6 +184,20 @@ public:
     // process make go on indefinitely.
     void push_rq(bthread_t tid);
 
+    bool pop_resume_task(bthread_t* tid);
+    bool push_resume_task(bthread_t tid);
+    static std::atomic<int> _resume_rq_cnt;
+    static moodycamel::ConcurrentQueue<bthread_t> _resume_rq;
+    moodycamel::ConsumerToken _resume_consumer_token;
+
+    // uint64_t stats_resume_cnt{0};
+    // double stats_resume_rq_sum_cnt{0};
+    // int64_t stats_resume_last_cout_ms{0};
+
+    // uint64_t stats_rq_cnt{0};
+    // double stats_rq_rq_sum_cnt{0};
+    // int64_t stats_rq_last_cout_ms{0};
+
 private:
 friend class TaskControl;
 
@@ -212,9 +228,12 @@ friend class TaskControl;
     bool wait_task(bthread_t* tid);
 
     bool steal_task(bthread_t* tid) {
-        if (_remote_rq.pop(tid)) {
-            return true;
-        }
+        // if (pop_resume_task(tid)){
+        //     return true;
+        // }
+        // if (_remote_rq.pop(tid)) {
+        //     return true;
+        // }
 #ifndef BTHREAD_DONT_SAVE_PARKING_STATE
         _last_pl_state = _pl->get_state();
 #endif

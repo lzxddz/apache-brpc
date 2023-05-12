@@ -357,10 +357,14 @@ bool TaskControl::steal_task(bthread_t* tid, size_t* seed, size_t offset) {
                 stolen = true;
                 break;
             }
-            if (g->_remote_rq.pop(tid)) {
+            if (g->pop_resume_task(tid)) {
                 stolen = true;
                 break;
             }
+            // if (g->_remote_rq.pop(tid)) {
+            //     stolen = true;
+            //     break;
+            // }
         }
     }
     *seed = s;

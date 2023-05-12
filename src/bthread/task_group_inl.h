@@ -78,24 +78,24 @@ inline void TaskGroup::sched_to(TaskGroup** pg, bthread_t next_tid) {
     sched_to(pg, next_meta);
 }
 
-inline void TaskGroup::push_rq(bthread_t tid) {
-    while (!_rq.push(tid)) {
-        // Created too many bthreads: a promising approach is to insert the
-        // task into another TaskGroup, but we don't use it because:
-        // * There're already many bthreads to run, inserting the bthread
-        //   into other TaskGroup does not help.
-        // * Insertions into other TaskGroups perform worse when all workers
-        //   are busy at creating bthreads (proved by test_input_messenger in
-        //   brpc)
-        flush_nosignal_tasks();
-        LOG_EVERY_SECOND(ERROR) << "_rq is full, capacity=" << _rq.capacity();
-        // TODO(gejun): May cause deadlock when all workers are spinning here.
-        // A better solution is to pop and run existing bthreads, however which
-        // make set_remained()-callbacks do context switches and need extensive
-        // reviews on related code.
-        ::usleep(1000);
-    }
-}
+// inline void TaskGroup::push_rq(bthread_t tid) {
+//     while (!_rq.push(tid)) {
+//         // Created too many bthreads: a promising approach is to insert the
+//         // task into another TaskGroup, but we don't use it because:
+//         // * There're already many bthreads to run, inserting the bthread
+//         //   into other TaskGroup does not help.
+//         // * Insertions into other TaskGroups perform worse when all workers
+//         //   are busy at creating bthreads (proved by test_input_messenger in
+//         //   brpc)
+//         flush_nosignal_tasks();
+//         LOG_EVERY_SECOND(ERROR) << "_rq is full, capacity=" << _rq.capacity();
+//         // TODO(gejun): May cause deadlock when all workers are spinning here.
+//         // A better solution is to pop and run existing bthreads, however which
+//         // make set_remained()-callbacks do context switches and need extensive
+//         // reviews on related code.
+//         ::usleep(1000);
+//     }
+// }
 
 inline void TaskGroup::flush_nosignal_tasks_remote() {
     if (_remote_num_nosignal) {

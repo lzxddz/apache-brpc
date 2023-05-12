@@ -69,6 +69,16 @@ public:
         return _tasks.push(task);
     }
 
+    bool push_top(bthread_t task) {
+        _mutex.lock();
+        const bool res = push_top_locked(task);
+        _mutex.unlock();
+        return res;
+    }
+    bool push_top_locked(bthread_t task) {
+        return _tasks.push_top(task);
+    }
+
     size_t capacity() const { return _tasks.capacity(); }
     
 private:
